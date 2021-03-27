@@ -1,0 +1,189 @@
+<html>
+
+<head>
+    
+     <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <meta name="description" content="">
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+   <meta name="generator" content="Jekyll v3.8.5">
+    <title>編輯商品 | balance</title>
+    
+     <link href="statics/css/bootstrap.min.css" rel="stylesheet">
+    <link href="statics/css/font-awesome.min.css" rel="stylesheet">
+   <link href="statics/icon/LOGO.png" type="image/x-png" rel="icon">
+   <link href="statics/icon/LOGO.png" type="image/x-png" rel="shortcut icon">
+   
+     <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+ 	
+ .font{
+   display: flex;
+   height:100px;  
+   font-size:40px;
+ }
+ .data{
+   display: flex;
+   height:100px;
+   text-align: center;  
+   font-size:30px;
+ }
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+  <!-- Custom styles for this template -->
+  <link href="statics/css/product.css" rel="stylesheet">
+  <link href="statics/css/jquery-confirm.css" rel="stylesheet">
+  <script src="statics/js/jquery-3.4.1.min.js"></script>
+  <script src="statics/js/jquery-confirm.js"></script>
+  <script src="statics/js/big.min.js"></script>
+</head>
+<body>	
+     	 <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom ">
+	    	<a href ="balance.html"><img src= "statics/icon/LOGO.png" width ="60" height="60"></a>
+	    	<a class="my-0 mr-md-auto" style="font-size:xx-large">balance</a>
+	    	<nav class="my-2 my-md-0 mr-md-3">
+	     	 	<a class="p-2 text-dark" href="product.html">Product</a>
+	      		<a class="p-2 text-dark" href="index.html">管理者</a>
+	    	</nav>
+  		</div>
+    
+
+  <div class="pricing-header px-5 py-10 pt-md-4 pb-md-3 mx-auto bg-light">
+    <h1 class="display-4" align="left">編輯商品</h1>
+  </div>  
+  <br>
+            <div id="flashMessage" class="message" style="display: none;"></div>
+   			<div class="pricing-header px-2 py-5 pt-md-4 pb-md-3 mx-auto bg-light">
+            <form id="form" accept-charset="utf-8">
+                <div style="display:none;"><input type="hidden" name="_method" value="POST"></div>
+                <div class="pricing-header px-5 pt-md-4 pb-md-3 mx-auto">
+                <div class="input text required">
+                    <label for="product_name" style="font-size:x-large">商品id</label>
+                    <input name="name" maxlength="30" type="text" id="id" required="required" disabled>
+                </div> 
+                </div>
+                <div class="pricing-header px-5 pt-md-4 pb-md-3 mx-auto">
+                <div class="input password required">
+                    <label for="product_name" style="font-size:x-large">商品名稱</label>
+                    <input name="name" maxlength="30" type="text" id="product_name" required="required">
+                </div>
+                </div>
+               <div class="pricing-header px-5 pt-md-4 pb-md-3 mx-auto">
+                <div class="input text required">
+                    <label for="product_name" style="font-size:x-large">商品價格</label>
+                    <input name="name" maxlength="30" type="text" id="product_price" required="required">
+                </div> 
+                </div>
+                <div class="pricing-header px-5 pt-md-4 pb-md-3 mx-auto">
+                <div class="input text required">
+                    <label for="product_name" style="font-size:x-large">商品圖片</label>
+                    <input name="name" maxlength="30" type="text" id="product_image" required="required">
+                </div> 
+                </div>
+                <div class="pricing-header px-5 pt-md-4 pb-md-3 mx-auto">
+                <div class="input text required">
+                    <label for="product_name" style="font-size:x-large">商品描述</label>
+                    <input name="name" maxlength="30" type="text" id="product_description" required="required">
+                </div> 
+                </div>
+                <div style="text-align:right;">
+                <div  align="center" class="submit" ><input type="button" style="font-size:x-large" class="btn btn-lg btn-outline-info"  value="確認" id="submit"></div>
+                </div>
+            </form>
+        </div>   
+            <script type="text/javascript">
+                var url_string = window.location.href;
+                var url = new URL(url_string);
+                var id = url.searchParams.get("id");
+                var sql_num = 0;
+
+                function updateProduct(id) {
+                    var name = $('#product_name').val();
+                    var price = $('#product_price').val();
+                    var image = $('#product_image').val();
+          			var description = $('#product_description').val();
+                  
+                        var data_object = {
+                            "id": id,
+                            "name": name,
+                            "image": image,
+                            "price": price,
+               				"description": description,
+                        };
+                    
+                        var data_string = JSON.stringify(data_object);
+                   
+                        $.ajax({
+                                type: "PUT",
+                                url: "api/product.do",
+                                data: data_string,
+                                crossDomain: true,
+                                cache: false,
+                                dataType: 'json',
+                                timeout: 5000,
+                                success: function (response) {
+                                    $('#flashMessage').html(response.message);
+                                    $('#flashMessage').show();
+                                    if(response.status == 200){
+                                        updateSQLTable(response.response);
+                                   }
+                                },
+                                error: function () {
+                                    alert("無法連線到伺服器！");
+                                }
+                        });
+                    }
+                
+                function updateSQLTable(data) {
+                    window.location.href="productMgr.html";
+                }
+
+                function getProduct() {
+                    $.ajax({
+                        type: "GET",
+                        url: "api/product.do",
+                        crossDomain: true,
+                        data: "id=" + id,
+                        cache: false,
+                        dataType: 'json',
+                        timeout: 5000,
+                        success: function (response) {
+                            if(response.status == 200){                         
+                             document.getElementById('product_name').value = response['response']['data'][0]['name'];
+                             document.getElementById('product_price').value = response['response']['data'][0]['price'];
+                             document.getElementById('product_image').value = response['response']['data'][0]['image'];
+                             document.getElementById('product_description').value = response['response']['data'][0]['description'];
+                             
+                            }
+                            console.log(response);
+                        },
+                        error: function () {
+                            alert("無法連線到伺服器！");
+                        }
+                    });
+                }
+
+                $('#submit').click(function() {
+                    updateProduct(id)
+                });
+                
+                $(document).ready(function() {
+                 getProduct();
+                });
+                
+                 </script>
+       
+ </body>
+
+</html>

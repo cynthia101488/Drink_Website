@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+  <meta name="generator" content="Jekyll v3.8.5">
+
+  <title>購物車 ｜ balance</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="statics/css/bootstrap.min.css" rel="stylesheet">
+  <link href="statics/css/font-awesome.min.css" rel="stylesheet">
+  <link href="statics/icon/LOGO.png" type="image/x-png" rel="icon">
+  <link href="statics/icon/LOGO.png" type="image/x-png" rel="shortcut icon">
+
+
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+  <!-- Custom styles for this template -->
+  <link href="statics/css/product.css" rel="stylesheet">
+  <link href="statics/css/jquery-confirm.css" rel="stylesheet">
+
+  <script src="statics/js/jquery-3.4.1.min.js"></script>
+  <script src="statics/js/jquery-confirm.js"></script>
+</head>
+
+<body>
+  <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+    <a id="balance"href="balance.html"><img src="statics/icon/LOGO.png" border="0"></a>
+    <h5 class="my-0 mr-md-auto font-weight-normal">balance</h5>
+    <nav class="my-2 my-md-0 mr-md-3">
+      <a id="member"class="p-2 text-dark" href="login.html">Member</a>
+     <!-- <a id="product"class="p-2 text-dark" href="product.html">Product</a>
+        <a class="p-2 text-dark" href="order.html">訂單列表</a>-->
+      <!--  <a href="cart.html"><img src="statics/img/cart.png" width="50" height="50"></a>-->
+    </nav>
+  </div>
+
+  <div class="pricing-header px-5 py-5 pt-md-4 pb-md-4 mx-auto bg-light">
+    <h1 class="display-5">購物車</h1>
+  </div>
+
+  <div class="container">
+	<div class="py-5">
+	  <div class='row'>
+	    <div class="col-md-8 order-md-6 mb-3">
+	      <div class="row">
+        	<div class="table-responsive">
+	          <table id="cart_table" class="table table-striped table-sm">
+			    <thead>
+		          <tr>
+		            <th class="text-center" style="width: 20%">商品</th>
+		            <th class="text-center" style="width: 15%">品名</th>
+			        <th class="text-center" style="width: 10%">單價</th>
+			        <th class="text-center" style="width: 10%">數量</th>
+			        <th class="text-center" style="width: 10%">甜度</th>
+			        <th class="text-center" style="width: 10%">冰塊</th>
+			        <th class="text-center" style="width: 18%">加購</th>
+		            <th class="text-center" style="width: 10%">刪除</th>
+		          </tr>
+		        </thead>
+		        <tbody>
+			    </tbody>
+		      </table>
+		    </div>
+	      </div>
+	    </div>
+	      
+        <div class="col-md-4 order-md-6 mb-4">
+		  <ul class="list-group mb-3">
+		    <li class="list-group-item d-flex justify-content-between lh-condensed">
+		      <div>
+		        <h6 class="my-2">商品小計</h6>
+		      </div>
+		      <span id="product_price" class="text-muted">0</span>
+		    </li>
+		    <li class="list-group-item d-flex justify-content-between bg-light">
+		      <div class="text-success">
+		        <h6 class="my-2">加購小計</h6>
+		      </div>
+		      <span id="cup_price" class="text-success">0</span>
+		    </li>
+		    <li class="list-group-item d-flex justify-content-between">
+		      <div>
+		        <h6 class="my-2"><b>訂單總計</b></h6>
+		      </div>
+		      <strong>$ <span id="total_price">0</span></strong>
+		    </li>
+		  </ul>
+		  <button id="shop" class="btn btn-primary btn-lg btn-block" type="button" >繼續購物</button>
+		  <button id="pay" class="btn btn-dark btn-lg btn-block" type="button">前往結帳</button>
+		</div>
+	  </div>
+	</div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@beta/dist/js.cookie.min.js"></script>
+  <script>
+    /*var [client_cart_obj, client_cart_amount]  = getCartDataFromClient();
+
+    if (client_cart_obj.length == 0) {
+    	alert("購物車沒有任何商品！");
+    	calcSummaryInformation();
+    	setButtonState("pay", false);
+    }
+    else*/
+    
+    //getCartProduct();
+    getMember();
+    function getMember(){
+    	var url_string = window.location.href;
+        var url = new URL(url_string);
+        var id = url.searchParams.get("member_id");       
+        if(id=="null"){
+        	//alert("a");
+			document.getElementById("member").href="login.html";
+			document.getElementById("balance").href="balance.html?member_id="+id; 
+			
+		}
+        else{
+               // 發出POST的AJAX請求
+                    $.ajax({
+                            type: "GET",
+                            url: "api/member.do",
+                            data: "id=" + id,
+                            crossDomain: true,
+                            cache: false,
+                            dataType: 'json',
+                            timeout: 5000,
+                            success: function (response) {                                    
+                                if(response.status == 200){
+                                	updateName(response.response.data);                                    
+                                }
+                            },
+                            error: function () {
+                                alert("無法連線到伺服器！");
+                            }
+                    });    	
+    }
+    }
+    function updateName(data) {            
+    	$.each(data, function (key, value){ 
+    		var element = document.getElementById("member");
+    		element.innerHTML = value['name']; 
+    		document.getElementById("member").href="Member.html?member_id="+value['id'];
+    		document.getElementById("balance").href="balance.html?member_id="+value['id'];		
+    	});
+    }
+    
+    $("#pay").click(function () {
+    	var url_string = window.location.href;
+        var url = new URL(url_string);
+        var id = url.searchParams.get("member_id"); 
+        if(id=="null"){
+        	alert("請先登入!!")
+        	document.location.href="login.html";	
+        }
+        else{
+        	document.location.href="cart_detail.html?member_id="+id;
+        }
+    });
+    $("#shop").click(function () {
+    	var url_string = window.location.href;
+        var url = new URL(url_string);
+        var id = url.searchParams.get("member_id");       
+			document.location.href="product.html?member_id="+id;	
+    });
+
+    function getCartProduct() {
+    	table_html = '';
+    	var url_string = window.location.href;
+        var url = new URL(url_string);
+        var id = url.searchParams.get("member_id");  
+    	let items = Cookies.get("drinkname");
+    	let P_img = Cookies.get("P_img");
+    	let amount = Cookies.get("amount");
+    	let sugar = Cookies.get("sugar");
+    	let ice = Cookies.get("ice");
+    	let price = Cookies.get("price");
+    	let cup = Cookies.get("cup");
+    	let pid = Cookies.get("pid");
+  		 pid = pid.split(",");
+   		 cup = cup.split(",");
+    	 items = items.split(",");
+    	 P_img = P_img.split(",");
+    	 amount = amount.split(",");
+    	 sugar = sugar.split(",");
+    	 ice = ice.split(",");
+    	 price = price.split(",");
+    	
+    	 var totalDrinkPrice = 0;
+    	 var totalcupPrice = 0;
+    	 
+    	 $("#cart_table > tbody").empty();
+    	 for(var i=0;i<items.length;i++){
+            table_html += '<tr id="row_' + i + '">';
+        	table_html += '<td class="align-middle text-center"><img src="'+ P_img[i] + '" width="75" height="100"></td>"';
+        	table_html += '<td class="align-middle text-center"><span id="name_">' + items[i]+ '</td>';
+        	table_html += '<td class="align-middle text-center"><span id="price_">' + price[i] + '</td>';
+        	table_html += '<td class="align-middle text-center"><span id="amount_">' + amount[i] + '</td>';
+        	table_html += '<td class="align-middle text-center"><span id="sugar_">' + sugar[i] + '</td>';
+        	table_html += '<td class="align-middle text-center"><span id="ice_">' + ice[i] + '</td>';
+        	table_html += '<td class="align-middle text-center"><a href="cup.html?member_id='+id+'&drink_id='+ i+'"><intput type="button" id="addcup_' + i + '" name="add[]" class="btn btn-dark" onclick="window.location.href">加購環保杯</a></td>';
+        	table_html += '<td class="align-middle text-center"><button id="remove_' + i+ '" name="remove[]" type="button" class="btn btn-danger">移除</button></td>';
+        	table_html += '</tr>';
+        	totalDrinkPrice=Number(totalDrinkPrice)+Number(price[i])*Number(amount[i]);
+        	if(cup[i]=="沒有加購"){
+        		
+        	}
+        	else{
+        		totalcupPrice = Number(totalcupPrice)+Number(30)*Number(amount[i]);
+        	}
+        }
+
+      $("#cart_table > tbody").append(table_html);
+      totalPrice = Number(totalDrinkPrice)+Number(totalcupPrice);
+  	  document.getElementById("product_price").textContent = totalDrinkPrice;
+  	  document.getElementById("cup_price").textContent = totalcupPrice;
+  	  document.getElementById("total_price").textContent = totalPrice;
+    }
+    
+    getCartProduct()
+    
+    $('button[name="remove[]"').click(function () {
+    	
+    		var id = (this.id).split('_')[1];
+    		var items = Cookies.get("drinkname");
+        	let P_img = Cookies.get("P_img");
+        	let amount = Cookies.get("amount");
+        	let sugar = Cookies.get("sugar");
+        	let ice = Cookies.get("ice");
+        	let price = Cookies.get("price");
+           	let cup = Cookies.get("cup");
+        	let pid = Cookies.get("pid");
+        	items = items.split(",");
+        	P_img = P_img.split(",");
+        	amount = amount.split(",");
+        	sugar = sugar.split(",");
+        	ice = ice.split(",");
+        	price = price.split(",");
+           	cup = cup.split(",");
+         	pid = pid.split(",");
+    
+         	var j =Number(id)+ 1;
+
+            for(i=id;i<amount.length-1;i++){
+        		 items[i]=items[j];
+        		 P_img[i]=P_img[j];
+        		 amount[i]=amount[j];
+        		 sugar[i]=sugar[j];
+        		 ice[i]=ice[j];
+        		 price[i]=price[j];
+        		 cup[i]=cup[j];
+        		 pid[i]=pid[j];
+        		 j++;
+        	 }
+        	 
+        	var	drinkname = items[0];
+        	var	pids = pid[0];
+        	var	img= P_img[0];
+        	var	amounts = amount[0];
+        	var	sugars = sugar[0];
+        	var	ices = ice[0];
+        	var	prices = price[0];
+        	var	cups = cup[0];
+        	 
+        	for(i=1;i<amount.length-1;i++){
+        		drinkname = drinkname+"," +items[i];
+        		img= img+"," +P_img[i];
+        		amounts = amounts+"," +amount[i];
+        		sugars = sugars+"," +sugar[i];
+        		ices = ices+"," +ice[i];
+        		prices = prices +"," +price[i];
+        		cups = cups +"," +cup[i];
+        		pids = pids +"," +pid[i];
+        		
+        	 }
+        	 removeCookie();
+        	 
+        	 if(Cookies.get("pid") == undefined){
+    	    	 Cookies.set('pid', pids);
+    	     }
+    	     else{
+    	    	 currentPidItem = Cookies.get("pid");
+    	    	 currentPidItem = currentPidItem+"," + pids; 
+    			 Cookies.set('pid', currentPidItem);
+    	     }
+        	 
+        	 if(Cookies.get("ice") == undefined){
+    	    	 Cookies.set('ice', ices);
+    	     }
+    	     else{
+    	    	 currentIceItem = Cookies.get("ice");
+    		     currentIceItem = currentIceItem+"," + ices; 
+    			 Cookies.set('ice', currentIceItem);
+    	     }
+    		
+    		 if(Cookies.get("sugar") == undefined){
+    			 Cookies.set('sugar', sugars);
+    		 }
+    		 else{
+    			 currentSugarItem = Cookies.get("sugar");
+    		     currentSugarItem = currentSugarItem+"," + sugars; 
+    		     Cookies.set('sugar', currentSugarItem);
+    		 }
+    		 
+    		 if(Cookies.get("amount") == undefined){
+    			 Cookies.set('amount', amounts);
+    		 }
+    		 else{
+    			 currentAmountItem = Cookies.get("amount");
+    			 currentAmountItem = currentAmountItem+"," + amounts; 
+    		     Cookies.set('amount', currentAmountItem);
+    		 }
+    		 
+    		 ///////
+    		 if(Cookies.get("P_img") == undefined){
+    			 Cookies.set('P_img', img);
+    		 }
+    		 else{
+    			 currentImgItem = Cookies.get("P_img");
+    			 currentImgItem = currentImgItem+"," + img; 
+    		     Cookies.set('P_img', currentImgItem);
+    		 }
+    		 
+    		 if(Cookies.get("drinkname") == undefined){
+    			 Cookies.set('drinkname', drinkname);
+    		 }
+    		 else{
+    			 currentNameItem = Cookies.get("drinkname");
+    			 currentNameItem = currentNameItem+"," + drinkname; 
+    		     Cookies.set('drinkname', currentNameItem);
+    		 }
+    		 
+    		 if(Cookies.get("price") == undefined){
+    			 Cookies.set('price', prices);
+    		 }
+    		 else{
+    			 currentPriceItem = Cookies.get("price");
+    			 currentPriceItem = currentPriceItem+"," + prices; 
+    		     Cookies.set('price', currentPriceItem);
+    		 }
+    		 if(Cookies.get("cup") == undefined){
+    			 Cookies.set('cup', cups);
+    		 }
+    		 else{
+    			 currentCupItem = Cookies.get("cup");
+    			 currentCupItem = currentCupItem+"," + cups; 
+    		     Cookies.set('cup', currentCupItem);
+    		 }
+    		 getCartProduct();
+    		 window.location.reload();
+    	});
+    
+    function removeCookie(){
+    	Cookies.remove('drinkname');
+    	Cookies.remove('P_img');
+    	Cookies.remove('ice');
+    	Cookies.remove('sugar');
+    	Cookies.remove('amount');
+    	Cookies.remove('price');
+    	Cookies.remove('cup');
+    	Cookies.remove('pid');
+    }
+    
+    /*function getCartProduct() {
+      $.ajax({
+        type: "GET",
+        url: "api/product.do",
+        crossDomain: true,
+        cache: false,
+        data: "id_list=" + client_cart_obj.toString(),
+        dataType: 'json',
+        timeout: 5000,
+        success: function (response) {
+          if (response.status == 200) {
+        	  updateCartTable(response.response.data);
+        	  updateAllQuantitySubtotal();
+        	  keyEventListen();
+        	  calcSummaryInformation();
+          }
+        },
+        error: function () {
+          alert("無法連線到伺服器！");
+        }
+      });
+    }*/
+
+    /*function updateAllQuantitySubtotal() {
+    	for (var i=0 ; i < client_cart_obj.length ; i++) {
+    		var id = client_cart_obj[i];
+    		var amount = client_cart_amount[i];
+    		var price = $('#price_' + id).html();
+    		$('#quantity_' + id).val(amount);
+    	}
+    }*/
+
+    /*function isNumberKey(evt){
+	    var charCode = (evt.which) ? evt.which : evt.keyCode
+	    if (charCode > 31 && (charCode < 48 || charCode > 57))
+	        return false;
+	    return true;
+    }*/
+
+    /*function keyEventListen() {
+    	$('input[name="quantity[]"').on(
+          'keypress',
+          function (e) {
+        	  return isNumberKey(e);
+          }
+      );
+
+    	$('input[name="quantity[]"').on(
+ 	        'keyup',
+ 	        function (e) {
+ 	        	var select = $(this).prop('id');
+ 	        	var action = select.split('_')[0];
+ 	        	var id = select.split('_')[1];
+ 	            var price = $('#price_' + id).html();
+ 	            var quantity =  $(this).val();
+ 	          updateClentCartData(id, quantity);
+ 	          calcSummaryInformation();
+ 	        }
+ 	    );
+    }*/
+
+    /*function calcSubTotal(price, quantity) {
+    	var result = (parseInt(price) * parseInt(quantity));
+    	result = isNaN(result) ? 0 : result;
+    	return result;
+    }*/
+
+    /*function updateCartTable(data) {
+    	table_html = '';
+    	$("#cart_table > tbody").empty();
+        $.each(data, function(index, value) {
+        	table_html += '<tr id="row_' + value.id + '">';
+        	table_html += '<td class="align-middle text-center"><img src="statics/img/product/' + value.image + '" width="75" height="100"></td>"';
+        	table_html += '<td class="align-middle text-center"><span id="name_' + value.id + '">' + value.name + '</td>';
+        	table_html += '<td class="align-middle text-center"><span id="price_' + value.id + '">' + value.price + '</td>';
+        	table_html += '<td class="align-middle text-center"><input type="input" name="quantity[]" class="input-sm form-control text-center" id="quantity_' + value.id + '" maxlength="3" min="0" step="1"></td>';
+        	table_html += '<td class="align-middle text-center"><select name="sugar"><option>請選擇甜度</option><option value="0">正常糖</option><option value="1">半糖</option><option value="2">微糖</option><option value="3">無糖</option></select></td>';
+        	table_html += '<td class="align-middle text-center"><select name="ice"><option>請選擇冰塊</option><option value="0">正常冰</option><option value="1">少冰</option><option value="2">去冰</option></select></td>';
+        	table_html += '<td class="align-middle text-center"><a href="cup.html"><intput type="button" id="addcup_' + value.id + '" name="add[]" class="btn btn-dark" onclick="window.location.href">加購環保杯</a></td>';
+        	table_html += '<td class="align-middle text-center"><button id="remove_' + value.id + '" name="remove[]" type="button" class="btn btn-danger">移除</button></td>';
+        	table_html += '</tr>';
+        })
+
+      $("#cart_table > tbody").append(table_html);
+     
+    }*/
+
+    /*function getCartDataFromClient() {
+    	let cart = JSON.parse(localStorage.getItem("client_cart_obj"));
+    	let amount = JSON.parse(localStorage.getItem("client_cart_amount"));
+    	cart = !cart ? new Array() : cart;
+    	amount = !amount ? new Array() : amount;
+    	return [cart, amount];
+    }*/
+
+    /*function updateCartDataToClent() {
+    	localStorage.setItem("client_cart_obj", JSON.stringify(client_cart_obj));
+    	localStorage.setItem("client_cart_amount", JSON.stringify(client_cart_amount));
+    }*/
+
+    /*function updateClentCartData(id, quantity) {
+    	var i = client_cart_obj.indexOf(id);
+    	client_cart_amount[i] = (quantity === "") ? 0 : parseInt(quantity);
+    	updateCartDataToClent();
+    }*/
+
+    /*function calcSummaryInformation() {
+    	var total_item = client_cart_obj.length;
+    	var product_price = 0;
+    	var cup_price = 0;
+    	var total_price = 0;
+
+    	for(var i=0 ; i < total_item ; i++) {
+    		var id = client_cart_obj[i];
+    		var price = $('#price_' + id).html();
+    		var quantity = $('#quantity_' + id).val();
+    		calc = parseInt(price) * parseInt(quantity);
+    		product_price += isNaN(calc) ? 0 : calc;
+    	}
+		total_price = product_price + cup_price;
+
+    	// Client端日期
+    	var date = new Date();
+    	var iso_date = date.toISOString();
+
+    	$("#product_price").html(product_price);
+    	$("#cup_price").html(cup_price);
+    	$("#total_price").html(total_price);
+    }*/
+
+    /*function setButtonState(id, action) {
+      if (!action) {
+          $('#' + id).prop('disabled', true);
+          $('#' + id).addClass('disabled');
+          $('#' + id).html('請先新增商品');
+      }
+      else {
+    	  $('#' + id).prop('disabled', false);
+          $('#' + id).removeClass('disabled');
+          $('#' + id).html('結帳');
+      }
+    }*/
+  </script>
+
+  <footer class="text-muted">
+    <div class="container">
+      <p class="float-right">
+        <a href="#">Back to top</a>
+      </p>
+      <p>Album example is &copy; Bootstrap, but please download and customize it for yourself!</p>
+      <p>New to Bootstrap? <a href="https://getbootstrap.com/">Visit the homepage</a> or read our <a
+          href="/docs/4.3/getting-started/introduction/">getting started guide</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    
+     <meta charset="utf-8">
+ 	 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+ 	 <meta name="description" content="">
+ 	<meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+  	<meta name="generator" content="Jekyll v3.8.5">
+    <title>SIGN UP | balance</title>
+    
+     <link href="statics/css/bootstrap.min.css" rel="stylesheet">
+  	 <link href="statics/css/font-awesome.min.css" rel="stylesheet">
+ 	 <link href="statics/icon/LOGO.png" type="image/x-png" rel="icon">
+ 	 <link href="statics/icon/LOGO.png" type="image/x-png" rel="shortcut icon">
+ 	 
+     <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+  <!-- Custom styles for this template -->
+  <link href="statics/css/product.css" rel="stylesheet">
+  <link href="statics/css/jquery-confirm.css" rel="stylesheet">
+  <script src="statics/js/jquery-3.4.1.min.js"></script>
+  <script src="statics/js/jquery-confirm.js"></script>
+  <script src="statics/js/big.min.js"></script>
+</head>
+
+<body>
+<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+    <a href ="balance.html"><img src= "statics/icon/LOGO.png" width ="60" height="60"></a>
+    <a class="my-0 mr-md-auto" style="font-size:xx-large">balance</a>
+    <nav class="my-2 my-md-0 mr-md-3">
+      <a class="p-2 text-dark" href="product.html">Product</a>
+    </nav>
+    <a href="cart.html">
+    <img src="statics/img/cart.png" width="50px">
+	</a>
+  </div>
+
+  <div class="pricing-header px-5 py-2 pt-md-4 pb-md-3 mx-auto bg-light">
+    <h1 class="display-4" align="left">SIGN UP</h1>
+  </div>  
+        <div id="content">
+    <div class="pricing-header px-2 py-2 pt-md-4 pb-md-3 mx-auto bg-dark">
+  </div>  
+            <div id="flashMessage" class="message" style="display: none;"></div>
+			<div class="pricing-header px-2 py-5 pt-md-4 pb-md-3 mx-auto bg-light">
+            <form id="form" accept-charset="utf-8">
+                <div style="display:none;"><input type="hidden" name="_method" value="POST"></div>
+                <div class="pricing-header px-5 pt-md-4 pb-md-3 mx-auto">
+                <div class="input text required">
+                    <label for="member_phoneNumber"style="font-size:x-large">會員帳號(手機)</label>
+                    <input name="phoneNumber" maxlength="30" type="tel" id="member_phoneNumber" required="required">
+                </div>
+                </div>
+                <div class="pricing-header px-5 pt-md-4 pb-md-3 mx-auto">
+                <div class="input text required">
+                    <label for="member_name" style="font-size:x-large">會員姓名</label>
+                    <input name="name" maxlength="30" type="text" id="member_name" required="required">
+                </div> 
+                </div>
+                <div class="pricing-header px-5 pt-md-4 pb-md-3 mx-auto">
+                <div class="input password required">
+                    <label for="member_password" style="font-size:x-large">密碼</label>
+                    <input name="password" maxlength="30" type="password" id="member_password" required="required">
+                </div>
+                </div>
+               
+                <div style="text-align:right;">
+                <div class="submit"><input type="button" value="註冊" id="submit"></div>
+                </div>
+            </form>
+            </div>
+            
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    // 處理表單點擊事件
+                    var $form = $('#submit');
+                    $form.click(function() {
+                        submit();
+                    });
+
+                    function submit() {
+                        var name = $('#member_name').val();
+                        var phoneNumber = $('#member_phoneNumber').val();
+                        var password = $('#member_password').val();
+
+                        var phoneNumber_rule = /^\d{10}$/;
+                        var password_rule = /^[a-zA-Z0-9]{8,}$/;
+
+                        if (!phoneNumber_rule.test(phoneNumber)) {
+                            alert("手機號碼錯誤！");
+                        }
+                        else if(!password_rule.test(password)) {
+                            alert("密碼格式不符，長度至少8！");
+                        }
+                        else {
+                            // 將資料組成JSON格式
+                            var data_object = {
+                                "name": name,
+                                "phoneNumber": phoneNumber,
+                                "password": password,           
+                            };
+
+                            // 將JSON格式轉換成字串
+                            var data_string = JSON.stringify(data_object);
+
+                            // 發出POST的AJAX請求
+                            $.ajax({
+                                    type: "POST",
+                                    url: "api/member.do",
+                                    data: data_string,
+                                    crossDomain: true,
+                                    cache: false,
+                                    dataType: 'json',
+                                    timeout: 5000,
+                                    success: function (response) {
+                                        $('#flashMessage').html(response.message);
+                                        $('#flashMessage').show();
+                                        if(response.status == 200){
+                                            updateSQLTable(response.response.data);
+                                            alert("成功註冊");
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("無法連線到伺服器！");
+                                    }
+                            });
+                        }
+                    }
+                    function updateSQLTable(data) {
+                    	$.each(data, function (key, value){    						
+     							window.location.href="Member.html?member_id= "+ value['id'];
+     						
+                        	});
+                    }
+                });
+            </script>
+
+        </div>
+        
+
+</body>
+
+</html>
